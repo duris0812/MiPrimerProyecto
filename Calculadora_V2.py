@@ -10,9 +10,9 @@ def calcular(operacion):
         resultado_var.set(resultado)
         historial.insert(tk.END, f"{num1} {operacion.__name__} {num2} = {resultado}\n")
     except ValueError:
-        messagebox.showerror("Error", "Ingrese números válidos")
+        messagebox.showerror("Error", "Ingrese números validos")
     except ZeroDivisionError:
-        messagebox.showerror("Error", "No se puede dividir por cero")
+        messagebox.showerror("Error", "No se puede dividir por 0")
 
 def limpiar():
     entry1.delete(0, tk.END)
