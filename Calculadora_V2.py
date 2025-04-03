@@ -1,6 +1,5 @@
-#Calculadora_V2.1
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import ttk, messagebox
 
 def calcular(operacion):
     """ Realiza la operación matemática y maneja errores """
@@ -10,8 +9,9 @@ def calcular(operacion):
         if operacion == "/" and num2 == 0:
             raise ZeroDivisionError
         resultado = operacion(num1, num2)
-        resultado_var.set(resultado)
+        resultado_var.set(round(resultado, 4))
         historial.insert(tk.END, f"{num1} {operacion.__name__} {num2} = {resultado}\n")
+        historial.see(tk.END)
     except ValueError:
         messagebox.showerror("Error", "Ingrese números válidos")
     except ZeroDivisionError:
@@ -37,33 +37,34 @@ def tecla_enter(event):
         calcular(ultima_operacion.get())
 
 root = tk.Tk()
-root.title("Calculadora V2 Mejorada")
-root.geometry("350x450")
+root.title("Calculadora V2.1 Mejorada")
+root.geometry("400x500")
 root.resizable(False, False)
 
 # Marco principal
-frame = tk.Frame(root)
-frame.pack(padx=10, pady=10)
+frame = ttk.Frame(root, padding=10)
+frame.pack()
 
 # Entradas
-entry1 = tk.Entry(frame, font=("Arial", 14))
+entry1 = ttk.Entry(frame, font=("Arial", 14))
 entry1.grid(row=0, column=0, columnspan=2, padx=5, pady=5)
-entry2 = tk.Entry(frame, font=("Arial", 14))
+entry2 = ttk.Entry(frame, font=("Arial", 14))
 entry2.grid(row=1, column=0, columnspan=2, padx=5, pady=5)
 
 # Resultado
 resultado_var = tk.StringVar()
-label_resultado = tk.Label(frame, textvariable=resultado_var, font=("Arial", 16), fg="blue")
+label_resultado = ttk.Label(frame, textvariable=resultado_var, font=("Arial", 16), foreground="blue")
 label_resultado.grid(row=2, column=0, columnspan=2, pady=10)
 
 # Botones de operación
-ultima_operacion = tk.StringVar()  # Para recordar la última operación
+ultima_operacion = tk.StringVar()
 
 botones = [
     ("+", lambda a, b: a + b, 3, 0),
     ("-", lambda a, b: a - b, 3, 1),
     ("*", lambda a, b: a * b, 4, 0),
-    ("/", lambda a, b: a / b, 4, 1)
+    ("/", lambda a, b: a / b, 4, 1),
+    ("%", lambda a, b: a % b, 5, 0)
 ]
 
 for simbolo, operacion, fila, columna in botones:
@@ -71,19 +72,24 @@ for simbolo, operacion, fila, columna in botones:
         ultima_operacion.set(op)
         calcular(op)
     
-    tk.Button(frame, text=simbolo, command=click, width=6, height=2, font=("Arial", 12)).grid(row=fila, column=columna, pady=5)
+    ttk.Button(frame, text=simbolo, command=click, width=6).grid(row=fila, column=columna, pady=5)
 
 # Botones adicionales
-tk.Button(frame, text="Limpiar", command=limpiar, width=13, font=("Arial", 12)).grid(row=5, column=0, columnspan=2, pady=5)
-tk.Button(frame, text="Limpiar Historial", command=limpiar_historial, width=13, font=("Arial", 12)).grid(row=6, column=0, columnspan=2, pady=5)
-tk.Button(frame, text="Salir", command=salir, width=13, font=("Arial", 12), fg="red").grid(row=7, column=0, columnspan=2, pady=5)
+ttk.Button(frame, text="Limpiar", command=limpiar, width=13).grid(row=6, column=0, columnspan=2, pady=5)
+ttk.Button(frame, text="Limpiar Historial", command=limpiar_historial, width=13).grid(row=7, column=0, columnspan=2, pady=5)
+ttk.Button(frame, text="Salir", command=salir, width=13).grid(row=8, column=0, columnspan=2, pady=5)
 
-# Historial
-historial = tk.Text(root, height=6, width=40, font=("Arial", 10))
-historial.pack(pady=10)
+# Historial con scrollbar
+hist_frame = ttk.Frame(root)
+hist_frame.pack(pady=10)
+
+scrollbar = ttk.Scrollbar(hist_frame)
+historial = tk.Text(hist_frame, height=6, width=40, font=("Arial", 10), yscrollcommand=scrollbar.set)
+scrollbar.config(command=historial.yview)
+scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+historial.pack(side=tk.LEFT)
 
 # Vincular Enter con la última operación seleccionada
 root.bind("<Return>", tecla_enter)
 
 root.mainloop()
-
